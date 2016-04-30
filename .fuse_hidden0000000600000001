@@ -165,7 +165,7 @@ public class BoardN extends JPanel implements java.io.Serializable {
 			if (bS.demo)
 				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+bS.highScore, 20, 10);
 			else
-				g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore+" Eres Pacman!", 20, 10);
+				g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore, 20, 10);
 		}
 		/* oops is set to true when pacman has lost a life */
 		boolean oops=false;
@@ -493,9 +493,9 @@ public class BoardN extends JPanel implements java.io.Serializable {
 		super.repaint();
 	}
 	public void imprimeListaAmigos() {
-		System.out.println("= Conectados =");
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
+			System.out.println("= Conectados =");
 			System.out.println(p.getNombre());
 		}
 	}
