@@ -78,9 +78,9 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 				max=p.getScore();
 			}
 		}
-		// El player es el que mayor puntuacion tiene
-		if(jugador.getScore()>=max) { return true; }
-		else { return false; }
+		// El fantasma es el que más puntuacion tiene
+		if(jugador.getScore()>=max) { return false; }
+		else { return true; }
 	}
 	/* Actualiza la posicion del jugador remoto en la lista*/
 	public List<Player> listaAmigos() throws Exception {
