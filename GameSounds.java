@@ -33,7 +33,6 @@ public class GameSounds{
             audioIn = AudioSystem.getAudioInputStream(url);
             newGame = AudioSystem.getClip();
             newGame.open(audioIn);
-
             // death
             url = this.getClass().getClassLoader().getResource("sounds/death.wav");
             audioIn = AudioSystem.getAudioInputStream(url);
