@@ -9,4 +9,3 @@ interface ServicioPac extends Remote {
 	List<Player> listaAmigos() throws Exception;
 	BoardS creajuego(String nombre) throws RemoteException;
 }
-

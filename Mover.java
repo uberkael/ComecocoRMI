@@ -5,10 +5,8 @@ class Mover
 {
 	/* Framecount is used to count animation frames*/
 	int frameCount=0;
-
 	/* State contains the game map */
 	boolean[][] state;
-
 	/* gridSize is the size of one square in the game.
 	max is the height/width of the game.
 	increment is the speed at which the object moves,
@@ -16,7 +14,6 @@ class Mover
 	int gridSize;
 	int max;
 	int increment;
-
 	/* Generic constructor */
 	public Mover()
 	{
@@ -32,7 +29,6 @@ class Mover
 			}
 		}
 	}
-
 	/* Updates the state information */
 	public void updateState(boolean[][] state)
 	{
@@ -44,7 +40,6 @@ class Mover
 			}
 		}
 	}
-
 	/* Determines if a set of coordinates is a valid destination.*/
 	public boolean isValidDest(int x, int y)
 	{

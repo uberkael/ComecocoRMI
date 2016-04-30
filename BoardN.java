@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-
 /* Clase que contiene el juego no serializable imagenes etc */
 /* Actua como un envoltorio para el BoardS que si se envia por red */
 /* Se ejecuta en la parte del cliente y engloba al BoardS (serializable)*/
@@ -410,7 +409,6 @@ public class BoardN extends JPanel implements java.io.Serializable {
 						/* Draw mouth open in appropriate direction */
 						if (bS.player.frameCount>=10)
 							bS.player.frameCount=0;
-
 						switch(bS.player.currDirection)
 						{
 							case 'L':
@@ -438,7 +436,6 @@ public class BoardN extends JPanel implements java.io.Serializable {
 					}
 				}
 			}
-
 		/* Draw the border around the game in case it was overwritten by ghost movement or something */
 		g.setColor(Color.WHITE);
 		g.drawRect(19, 19, 382, 382);
@@ -446,7 +443,6 @@ public class BoardN extends JPanel implements java.io.Serializable {
 		g.setColor(Color.WHITE);
 		g.drawRect(19, 19, 382, 382);
 		}
-
 	/* Devuelve el player de la lista segun el su nombre*/
 	public Player PlayerPropio(String nombre) throws Exception {
 		Player a=null;
