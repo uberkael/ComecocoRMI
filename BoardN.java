@@ -9,7 +9,7 @@ public class BoardN extends JPanel implements java.io.Serializable {
 	/* La parte serializable de Board */
 	BoardS bS;
 	/* Used to call sound effects */
-	GameSounds sounds;>
+	GameSounds sounds;
 	/* Banderas de estado*/
 	boolean titleScreen;
 	boolean winScreen=false;
