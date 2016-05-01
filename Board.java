@@ -352,7 +352,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 600, 20);
 			puntuaciones(g);
-			/* If this was the last pellet */ // TODO
+			/* If this was the last pellet */
 			if (player.pelletsEaten==173)
 			{
 				/*Demo mode can't get a high score */
