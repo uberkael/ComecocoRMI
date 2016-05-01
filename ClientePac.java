@@ -1,7 +1,19 @@
+import java.io.PrintWriter;
 import java.rmi.*;
-import static java.lang.Thread.sleep;
 class ClientePac {
 	static public void main (String args[]) {
+		// Si el cliente es un jar no tendrá cliente.permisos
+		// Hack para crear uno si no existe
+		PrintWriter out;
+		try
+		{
+			out=new PrintWriter("cliente.permisos");
+			out.println("grant { permission java.security.AllPermission; };");
+			out.close();
+		}
+		catch(Exception e) {
+			System.out.println("Error escribiendo archivo");
+		}
 		// Elimina la necesidad de permisos en linea de comando
 		System.setProperty("java.security.policy", "cliente.permisos");
 		// Elimina la capacidad de elegir puerto
@@ -14,12 +26,12 @@ class ClientePac {
 			System.setSecurityManager(new SecurityManager());
 		try {
 			ServicioPac srv=(ServicioPac) Naming.lookup("//"+args[0]+":"+puerto+"/Pacman");
-			// Crea un tablero local con el nombre del lugador
-			Board tablero=new Board(args[1]);
+			// Crea un tablero local con el nombre del lugador y el servidor
+			Board tablero=new Board(srv, args[1]);
 			// Agrega un player a la lista del servidor con el nombre
 			srv.crearPlayer(tablero.getNombre());
-			// Crea un juego de pacman local con el tablero y el servidor
-			new Pacman(srv, tablero);
+			// Crea un juego de pacman local con el tablero
+			new Pacman(tablero);
 		}
 		catch (RemoteException e) {
 			System.err.println("Error de comunicacion: "+e.toString());

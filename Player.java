@@ -20,6 +20,8 @@ class Player extends Mover implements java.io.Serializable
 	/* Which pellet the pacman is on top of */
 	int pelletX;
 	int pelletY;
+	/* Para cuando el jugador esta en modo fantasma */
+	int lastPelletX, lastPelletY;
 	/* teleport is true when travelling through the teleport tunnels*/
 	boolean teleport;
 	/* Stopped is set when the pacman is not moving or has been killed */
@@ -38,6 +40,8 @@ class Player extends Mover implements java.io.Serializable
 		pelletsEaten=0;
 		pelletX=x/gridSize-1;
 		pelletY=y/gridSize-1;
+		lastPelletX=pelletX;
+		lastPelletY=pelletY;
 		this.lastX=x;
 		this.lastY=y;
 		this.x=x;
@@ -176,9 +180,9 @@ class Player extends Mover implements java.io.Serializable
 		/*Can only turn if we're in center of a grid*/
 		if (x %20==0&&y%20==0||
 			/* Or if we're reversing*/
-			(desiredDirection=='L'&&currDirection=='R') ||
-			(desiredDirection=='R'&&currDirection=='L') ||
-			(desiredDirection=='U'&&currDirection=='D') ||
+			(desiredDirection=='L'&&currDirection=='R')||
+			(desiredDirection=='R'&&currDirection=='L')||
+			(desiredDirection=='U'&&currDirection=='D')||
 			(desiredDirection=='D'&&currDirection=='U')
 			)
 		{
@@ -253,10 +257,24 @@ class Player extends Mover implements java.io.Serializable
 	/* Update what pellet the pacman is on top of */
 	public void updatePellet()
 	{
-		if (x%gridSize==0&&y%gridSize==0)
-		{
-			pelletX=x/gridSize-1;
-			pelletY=y/gridSize-1;
+		if (comecoco) {
+			if (x%gridSize==0&&y%gridSize==0)
+			{
+				pelletX=x/gridSize-1;
+				pelletY=y/gridSize-1;
+			}
+		}
+		else {
+			int tempX, tempY;
+			tempX=x/gridSize-1;
+			tempY=y/gridSize-1;
+			if (tempX!=pelletX||tempY!=pelletY)
+			{
+				lastPelletX=pelletX;
+				lastPelletY=pelletY;
+				pelletX=tempX;
+				pelletY=tempY;
+			}
 		}
 	}
 	/* Nombre del jugador */
@@ -281,5 +299,18 @@ class Player extends Mover implements java.io.Serializable
 	}
 	public void setComecoco(boolean a) {
 		this.comecoco=a;
+	}
+	public void printState(boolean[][] state)
+	{
+		int num;
+		for(int i=0; i<20; i++)
+		{
+			for(int j=0; j<20; j++)
+			{
+				num=(this.state[i][j]) ? 1 : 8;
+				System.out.print(num+" ");
+			}
+			System.out.print("\n");
+		}
 	}
 }

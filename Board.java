@@ -18,7 +18,6 @@ public class Board extends JPanel implements java.io.Serializable {
 	int dying=0;
 	/* Score information */
 	int currScore;
-	int highScore;
 	/* if the high scores have been cleared, we have to update the top of the screen to reflect that */
 	boolean clearHighScores=false;
 	int numLives=2;
@@ -64,7 +63,6 @@ public class Board extends JPanel implements java.io.Serializable {
 		max=400;
 		gridSize=20;
 		New=0;
-		//initHighScores();
 		sounds=new GameSounds();
 	}
 	/* For JAR File*/
@@ -132,7 +130,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			if (dying!=1)
 				temp=100;
 			else
-				temp=2000;
+				temp=100;;
 			/* If it's time to draw a new death frame... */
 			if (currTime-timer>=temp)
 			{
@@ -149,10 +147,10 @@ public class Board extends JPanel implements java.io.Serializable {
 						else
 						{
 							/* Game over for player.  If relevant, update high score.  Set gameOver flag*/
-							if (player.currScore>highScore)
-							{
-								//TODO//updateScore(player.currScore);
-							}
+							// if (player.currScore>tB.getHighScore())
+							// {
+							// 	//TODO//updateScore(player.currScore);
+							// }
 							overScreen=true;
 						}
 					}
@@ -296,6 +294,14 @@ public class Board extends JPanel implements java.io.Serializable {
 		// 	oops=true;
 		// else if (player.y==ghost4.y&&Math.abs(player.x-ghost4.x)<10)
 		// 	oops=true;
+		/* Fantasma matador */
+		Player k=PlayerFantasma();
+		if (k!=null) {
+			if (player.getComecoco()&&player.x==k.x&&Math.abs(player.y-k.y)<10) {
+				oops=true;
+			}
+			k=null; // Limpia var
+		}
 		/* Kill the pacman */
 		// if (oops&&!stopped) // TODO
 		if (oops)
@@ -346,16 +352,16 @@ public class Board extends JPanel implements java.io.Serializable {
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 600, 20);
 			puntuaciones(g);
-			/* If this was the last pellet */
+			/* If this was the last pellet */ // TODO
 			if (player.pelletsEaten==173)
 			{
 				/*Demo mode can't get a high score */
 				if (!demo)
 				{
-					if (player.currScore>highScore)
-					{
-						//updateScore(player.currScore);
-					}
+					// if (player.currScore>tB.getHighScore())
+					// {
+					// 	//updateScore(player.currScore);
+					// }
 					winScreen=true;
 				}
 				else
@@ -383,8 +389,10 @@ public class Board extends JPanel implements java.io.Serializable {
 		/* Remplaza los pellets por donde pasan los amigos fantasmas*/
 		for (int i=0; i<l.size(); i++) {
 			Player a=(Player)l.get(i);
-			if (!a.getComecoco()&&tB.pellets[a.lastPelletX][a.lastPelletY])
+			// if (!a.getComecoco()&&tB.pellets[a.lastPelletX][a.lastPelletY])
+			if (!a.getComecoco()) {
 				fillPellet(a.lastPelletX, a.lastPelletY, g);
+			}
 		}
 		/*Draw the ghosts */
 		if (ghost1.frameCount<5)
@@ -525,7 +533,7 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.fillOval(x*20+28, y*20+28, 4, 4);
 		g.setColor(a); // Necesito restaurar el color
 	}
-	/* Devuelve el player de la lista segun el su nombre*/
+	/* Devuelve el player de la lista segun el su nombre */
 	public Player PlayerPropio(String nombre) throws Exception {
 		Player a=null;
 		for (int i=0; i<l.size(); i++) {
@@ -541,6 +549,16 @@ public class Board extends JPanel implements java.io.Serializable {
 		else {
 			throw new Exception(nombre+" no encontrado.");
 		}
+	}
+	/* Devuelve el player Fantasma */
+	public Player PlayerFantasma() {
+		for (int i=0; i<l.size(); i++) {
+			Player p=(Player)l.get(i);
+			if (!p.getComecoco()) {
+				return p;
+			}
+		}
+		return null;
 	}
 	/* Funcion para actualizar los datos del servidor y del player */
 	public void rmiUpdate() {
@@ -593,8 +611,8 @@ public class Board extends JPanel implements java.io.Serializable {
 		l=a;
 		// Si es la primera ejecucion o son distintos se imprime la lista de usuarios
 		if (aumento||primeraEjecucion) {
-			imprimeListaAmigos();
 			if(primeraEjecucion) {
+				System.out.println("= Conectados =");
 				// Tambien asignamos un Player desde la lista al juego
 				try {
 					player=PlayerPropio(getNombre());
@@ -606,6 +624,7 @@ public class Board extends JPanel implements java.io.Serializable {
 
 			}
 		}
+		imprimeListaAmigos();
 	}
 	/* Actualiza las pellets y los estados con la nueva informacion */
 	public void setTablero(Tablero a) {
@@ -625,10 +644,10 @@ public class Board extends JPanel implements java.io.Serializable {
 	}
 	/* Imprime los amigos conectados */
 	public void imprimeListaAmigos() {
-		System.out.println("= Conectados =");
+		System.out.print("\r");
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
-			System.out.println(p.getNombre());
+			System.out.print(p.getNombre()+" "+p.getScore()+"\t ");
 		}
 	}
 	/* Actualiza los datos del player con la nueva informacion*/
@@ -648,15 +667,16 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.setColor(Color.YELLOW);
 		g.setFont(font);
 		if (demo)
-			g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+highScore, 20, 10);
+			g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+tB.getHighScore(), 20, 10);
 		else {
 			if(player.getComecoco()) {
-				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Eres Pacman!", 20, 10);
+				g.drawString("Score: "+(player.currScore)+"\t High Score: "+tB.getHighScore()+" Eres Pacman!", 20, 10);
 			}
 			else {
-				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Fantasma", 20, 10);
+				g.drawString("Score: "+(player.currScore)+"\t High Score: "+tB.getHighScore()+" Fantasma", 20, 10);
 			}
 		}
+		rmiUpdate(); // Actualiza con la nueva puntuacion
 	}
 	public void pintandoAmigos(List<Player> l, Graphics g) {
 		// Borra los Amigos

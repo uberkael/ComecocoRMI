@@ -17,24 +17,11 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	Board b;
 	/* This timer is used to do request new frames be drawn*/
 	javax.swing.Timer frameTimer;
-	/* Contendra el servicio servidor para actualizarle la posicion */
-	ServicioPac srv;
 	/* This constructor creates the entire game essentially */
-	public Pacman(ServicioPac server, Board boardNoSerializable)
+	public Pacman(Board board)
 	{
-		/* Asigno el servidor */
-		srv=server;
 		/* Movido para usar el player de red */
-		b=boardNoSerializable;
-		/* Asigna la lista de amigos conectados desde el servidor */
-		try	{
-			b.setAmigos(srv.listaAmigos());
-			// System.out.println(srv.posicionPlayer(b.player));
-		}
-		catch (Exception er) {
-			System.err.println("Excepcion en la lista de amigos conectados");
-			er.printStackTrace();
-		}
+		b=board;
 		// Parte grafica //
 		b.requestFocus();
 		/* Create and set up window frame*/
@@ -94,9 +81,8 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	{
 		// Envia la posicion actual al servidor, que la imprimirá
 		try	{
-			srv.updatePlayer(b.player);
-			b.setAmigos(srv.listaAmigos());
-			// System.out.println(srv.posicionPlayer(b.player));
+			// Actualiza los datos del cliente
+			b.rmiUpdate();
 		}
 		catch (Exception er) {
 			System.err.println("Excepcion en la posicion o player");
@@ -200,8 +186,14 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			b.player.currDirection='L';
 			b.player.direction='L';
 			b.player.desiredDirection='L';
-			b.player.x=200;
-			b.player.y=300;
+			b.player.x=200; // La x no cambia
+			// Impide la colision al crearse con el fantasma
+			if(b.PlayerFantasma()!=null&&b.PlayerFantasma().y==300) {
+				b.player.y=60;
+			}
+			else {
+				b.player.y=300;
+			}
 			b.ghost1.x=180;
 			b.ghost1.y=180;
 			b.ghost2.x=200;
