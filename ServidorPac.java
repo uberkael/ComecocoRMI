@@ -6,9 +6,22 @@ import javax.swing.JApplet;
 import java.awt.*;
 import java.util.List;
 import java.lang.*;
+import java.io.PrintWriter;
 class ServidorPac extends JApplet
 {
 	static public void main (String args[]) {
+		// Si el cliente es un jar no tendrá cliente.permisos
+		// Hack para crear uno si no existe
+		PrintWriter out;
+		try
+		{
+			out=new PrintWriter("servidor.permisos");
+			out.println("grant { permission java.security.AllPermission; };");
+			out.close();
+		}
+		catch(Exception e) {
+			System.out.println("Error escribiendo archivo");
+		}
 		// Elimina la necesidad de permisos en linea de comando
 		System.setProperty("java.security.policy", "servidor.permisos");
 		// Elimina la capacidad de elegir puerto
