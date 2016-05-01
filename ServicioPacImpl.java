@@ -26,7 +26,7 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 	}
 	/* Devuelve la posicion del jugador*/
 	public String posicionPlayer(Player jugador) throws RemoteException {
-		String posi="Posicion de "+jugador.getNombre()+"X:"+jugador.getX()+"\tY: "+jugador.getY()+" Puntuacion: "+jugador.getScore();
+		String posi="Posicion de"+jugador.getNombre()+"\tX:"+jugador.getX()+"\tY: "+jugador.getY()+"\tPuntuacion: "+jugador.getScore();
 		// System.out.println(posi); // Lo imprime en el servidor tambien
 		return posi;
 	}
@@ -35,16 +35,15 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 		boolean encontrado=false;
 		for (int i=0; i<l.size(); i++) {
 			Player p=l.get(i);
+			// El servidor actualiza quien es el Comecoco con mas putuacion
 			if (p.getNombre().indexOf(jugador.getNombre())!=-1) {
-				// Encontrado el player
-				encontrado=true;
-				// El servidor busca si tiene mayor puntuacion que nadie y lo hace comecoco
-				jugador.setComecoco(promocionaComecoco(jugador));
+				encontrado=true; // Encontrado el player
 				this.l.set(i, jugador); // Se sobreescribe el jugador de la lista
 			}
 		}
 		if (encontrado) {
 			posicionPlayer(jugador);
+			promocionaComecocos(); // Actualiza toda la lista con el unico fantasma
 			return;
 		}
 		else {
@@ -68,19 +67,30 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 			throw new Exception(nombre+" no encontrado.");
 		}
 	}
-	/* Promociona al que tenga mayor de todo el servidor puntuacion a comecocos */
-	public boolean promocionaComecoco(Player jugador) throws Exception {
+	/* Promociona al que tenga mayor de todo el servidor puntuacion a Fantasma */
+	public void promocionaComecocos() throws Exception {
+		// Haya el maximo
 		int max=0;
+		int aux=0;
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
-			if (p.getScore()>=max) {
-				// Encontrado el player con mayor puntuacion
-				max=p.getScore();
+			aux=p.getScore();
+			if (aux>=max) {
+				max=aux;
 			}
 		}
 		// El fantasma es el que más puntuacion tiene
-		if(jugador.getScore()>=max) { return false; }
-		else { return true; }
+		for (int i=0; i<l.size(); i++) {
+			Player p=(Player)l.get(i);
+			aux=p.getScore();
+			if (aux==max) {
+				// Encontrado el player con mayor puntuacion
+				p.setComecoco(false);
+			}
+			else {
+				p.setComecoco(true);
+			 }
+		}
 	}
 	/* Actualiza la posicion del jugador remoto en la lista*/
 	public List<Player> listaAmigos() throws Exception {

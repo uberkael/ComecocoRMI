@@ -88,6 +88,10 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 		b.repaint(b.bS.ghost2.x-20, b.bS.ghost2.y-20, 80, 80);
 		b.repaint(b.bS.ghost3.x-20, b.bS.ghost3.y-20, 80, 80);
 		b.repaint(b.bS.ghost4.x-20, b.bS.ghost4.y-20, 80, 80);
+	}
+	/* Steps the screen forward one frame */
+	public void stepFrame(boolean New)
+	{
 		// Envia la posicion actual al servidor, que la imprimirá
 		try	{
 			srv.updatePlayer(b.bS.player);
@@ -98,10 +102,6 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			System.err.println("Excepcion en la posicion o player");
 			er.printStackTrace();
 		}
-	}
-	/* Steps the screen forward one frame */
-	public void stepFrame(boolean New)
-	{
 		/* If we aren't on a special screen than the timers can be set to-1 to 	disable them */
 		if (!b.titleScreen&&!b.winScreen&&!b.overScreen)
 		{

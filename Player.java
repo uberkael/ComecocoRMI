@@ -29,7 +29,7 @@ class Player extends Mover implements java.io.Serializable
 	/* Score information */ // Trasplantado de Board
 	int currScore;
 	/* Es un comecoco o fantasma */
-	boolean comecoco=false;
+	boolean comecoco=true;
 	/* Constructor places pacman in initial location and orientation */
 	public Player(int x, int y, String nombre)
 	{

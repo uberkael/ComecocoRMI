@@ -163,7 +163,7 @@ public class BoardN extends JPanel implements java.io.Serializable {
 			if (bS.demo)
 				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+bS.highScore, 20, 10);
 			else
-				g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore+" Eres Pacman!", 20, 10);
+				g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore, 20, 10);
 		}
 		/* oops is set to true when pacman has lost a life */
 		boolean oops=false;
@@ -251,24 +251,25 @@ public class BoardN extends JPanel implements java.io.Serializable {
 		g.copyArea(bS.ghost3.x-20, bS.ghost3.y-20, 80, 80, 0, 0);
 		g.copyArea(bS.ghost4.x-20, bS.ghost4.y-20, 80, 80, 0, 0);
 		/* Detect collisions */
-		if (bS.player.x==bS.ghost1.x&&Math.abs(bS.player.y-bS.ghost1.y)<10)
-			oops=true;
-		else if (bS.player.x==bS.ghost2.x&&Math.abs(bS.player.y-bS.ghost2.y)<10)
-			oops=true;
-		else if (bS.player.x==bS.ghost3.x&&Math.abs(bS.player.y-bS.ghost3.y)<10)
-			oops=true;
-		else if (bS.player.x==bS.ghost4.x&&Math.abs(bS.player.y-bS.ghost4.y)<10)
-			oops=true;
-		else if (bS.player.y==bS.ghost1.y&&Math.abs(bS.player.x-bS.ghost1.x)<10)
-			oops=true;
-		else if (bS.player.y==bS.ghost2.y&&Math.abs(bS.player.x-bS.ghost2.x)<10)
-			oops=true;
-		else if (bS.player.y==bS.ghost3.y&&Math.abs(bS.player.x-bS.ghost3.x)<10)
-			oops=true;
-		else if (bS.player.y==bS.ghost4.y&&Math.abs(bS.player.x-bS.ghost4.x)<10)
-			oops=true;
+		// if (bS.player.x==bS.ghost1.x&&Math.abs(bS.player.y-bS.ghost1.y)<10)
+		// 	oops=true;
+		// else if (bS.player.x==bS.ghost2.x&&Math.abs(bS.player.y-bS.ghost2.y)<10)
+		// 	oops=true;
+		// else if (bS.player.x==bS.ghost3.x&&Math.abs(bS.player.y-bS.ghost3.y)<10)
+		// 	oops=true;
+		// else if (bS.player.x==bS.ghost4.x&&Math.abs(bS.player.y-bS.ghost4.y)<10)
+		// 	oops=true;
+		// else if (bS.player.y==bS.ghost1.y&&Math.abs(bS.player.x-bS.ghost1.x)<10)
+		// 	oops=true;
+		// else if (bS.player.y==bS.ghost2.y&&Math.abs(bS.player.x-bS.ghost2.x)<10)
+		// 	oops=true;
+		// else if (bS.player.y==bS.ghost3.y&&Math.abs(bS.player.x-bS.ghost3.x)<10)
+		// 	oops=true;
+		// else if (bS.player.y==bS.ghost4.y&&Math.abs(bS.player.x-bS.ghost4.x)<10)
+		// 	oops=true;
 		/* Kill the pacman */
-		if (oops&&!bS.stopped)
+		// if (oops&&!bS.stopped) // TODO
+		if (oops)
 		{
 			/* 4 frames of death*/
 			dying=4;
@@ -314,8 +315,16 @@ public class BoardN extends JPanel implements java.io.Serializable {
 			g.setFont(bS.font);
 			if (bS.demo)
 				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+bS.highScore, 20, 10);
-			else
-				g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore, 20, 10);
+			else {
+				if(bS.player.getComecoco()) {
+					g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore+" Eres Pacman!", 20, 10);
+				}
+				else {
+					g.drawString("Score: "+(bS.player.currScore)+"\t High Score: "+bS.highScore+" Fantasma", 20, 10);
+				}
+			}
+
+
 			/* If this was the last pellet */
 			if (bS.player.pelletsEaten==173)
 			{
@@ -392,8 +401,8 @@ public class BoardN extends JPanel implements java.io.Serializable {
 		// Dibuja los Amigos Pacmans
 		for (int i=0; i<l.size(); i++) {
 			Player a=(Player)l.get(i);
-				// Si es nuestro propio player
-			if(a.getNombre()==bS.getNombre()) {
+			// Si es nuestro propio player
+			if(a.getNombre().indexOf(bS.player.getNombre())!=-1) {
 					a=bS.player; // Sobreescribimos para usar el nuestro
 				}
 				// Si es comecoco se pinta
@@ -467,24 +476,23 @@ public class BoardN extends JPanel implements java.io.Serializable {
 		// Se asigna siempre la lueva lista para actualizar los datos
 		// De todos los amigos y sus posiciones
 		l=a;
-		// Si son distintos se imprime la lista de usuarios
-		if (aumento) {
+		// Si es la primera ejecucion o son distintos se imprime la lista de usuarios
+		if (aumento||primeraEjecucion) {
 			imprimeListaAmigos();
-		}
-		// Si es la primera ejecucion se asigna un Player fijo al BoardS
-		if(primeraEjecucion) {
-			primeraEjecucion=false;
-			try {
-				imprimeListaAmigos();
-				// Tambien asignamos un Player fijo al juego
-				bS.setPlayer(PlayerPropio(bS.getNombre()));
+			if(primeraEjecucion) {
+				// Tambien asignamos un Player de la lista al juego
+				try {
+					System.out.println("aqui");
+					bS.setPlayer(PlayerPropio(bS.getNombre()));
+				}
+				catch (Exception e) {
+					System.err.println("Excepcion en Amigos: ");
+					e.printStackTrace();
+				}
+				primeraEjecucion=false;
 			}
-			catch (Exception e) {
-				System.err.println("Excepcion en Amigos: ");
-				e.printStackTrace();
-			}
 		}
-		updateComecocoStatus();
+		updatePlayerData();
 	}
 	public void imprimeListaAmigos() {
 		System.out.println("= Conectados =");
@@ -493,10 +501,16 @@ public class BoardN extends JPanel implements java.io.Serializable {
 			System.out.println(p.getNombre());
 		}
 	}
-	public void updateComecocoStatus() {
+	public void updatePlayerData() {
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
-			if(p.getNombre()==bS.player.getNombre()) {
+			if(p.getNombre().indexOf(bS.player.getNombre())!=-1) {
+				if(p.getComecoco()) {
+					System.out.println("Eres Pacman");
+				}
+				else {
+					System.out.println("Eres Fantasma");
+				}
 				bS.player.setComecoco(p.getComecoco());
 			}
 		}
