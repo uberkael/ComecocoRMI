@@ -12,7 +12,7 @@ public class Board extends JPanel implements java.io.Serializable {
 	Ghost ghost3=new Ghost(220, 180);
 	Ghost ghost4=new Ghost(220, 180);
 	/* Timer is used for playing sound effects and animations */
-	long timer = System.currentTimeMillis();
+	long timer=System.currentTimeMillis();
 	/* Dying is used to count frames in the dying animation.  If it's non-zero,
 	pacman is in the process of dying */
 	int dying=0;
@@ -20,28 +20,24 @@ public class Board extends JPanel implements java.io.Serializable {
 	int currScore;
 	int highScore;
 	/* if the high scores have been cleared, we have to update the top of the screen to reflect that */
-	boolean clearHighScores= false;
+	boolean clearHighScores=false;
 	int numLives=2;
-	/*Contains the game map, passed to player and ghosts */
-	boolean[][] state;
-	/* Contains the state of all pellets*/
-	boolean[][] pellets;
 	/* Game dimensions */
 	int gridSize;
 	int max;
 	/* State flags*/
 	boolean stopped;
 	boolean titleScreen;
-	boolean winScreen = false;
-	boolean overScreen = false;
-	boolean demo = false;
+	boolean winScreen=false;
+	boolean overScreen=false;
+	boolean demo=false;
 	int New;
 	/* Used to call sound effects */
 	GameSounds sounds;
-	int lastPelletEatenX = 0;
+	int lastPelletEatenX=0;
 	int lastPelletEatenY=0;
 	/* This is the font used for the menus */
-	Font font = new Font("Monospaced",Font.BOLD, 12);
+	Font font=new Font("Monospaced", Font.BOLD, 12);
 	/* Nombre de este Player*/
 	String nombre;
 	/* La parte serializable de Board */
@@ -50,10 +46,18 @@ public class Board extends JPanel implements java.io.Serializable {
 	List<Player> l;
 	/* Asignara el objeto Player desde la lista solo la primera vez */
 	boolean primeraEjecucion=true;
+	/* Tablero comun con la informacion de puntuaciones maximas y pellets */
+	Tablero tB;
+	/* Contendra el servicio servidor para actualizarle la posicion */
+	ServicioPac srv;
+	/* Si hay un cambio de estado*/
+	boolean cambio=false;
 	/* Costructor */
 	// public Board(Board boardSerializable) {
-	public Board(String a) {
+	public Board(ServicioPac server, String a) {
 		nombre=a;
+		/* Asigno el servidor */
+		srv=server;
 		titleScreen=true;
 		// bS=boarderializable;
 		stopped=false;
@@ -197,10 +201,9 @@ public class Board extends JPanel implements java.io.Serializable {
 			g.setColor(Color.YELLOW);
 			g.setFont(font);
 			clearHighScores=false;
-			if (demo)
-				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+highScore, 20, 10);
-			else
-				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore, 20, 10);
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, 600, 20);
+			puntuaciones(g);
 		}
 		/* oops is set to true when pacman has lost a life */
 		boolean oops=false;
@@ -213,39 +216,28 @@ public class Board extends JPanel implements java.io.Serializable {
 			ghost2=new Ghost(200, 180);
 			ghost3=new Ghost(220, 180);
 			ghost4=new Ghost(220, 180);
+			rmiUpdate();
 			player.currScore=0;
 			drawBoard(g);
 			drawPellets(g);
 			drawLives(g);
 			/* Send the game map to player and all ghosts */
-			player.updateState(state);
+			player.updateState(tB.state);
 			/* Don't let the player go in the ghost box*/
 			player.state[9][7]=false;
-			//			/* Manda el mapa a los Amigos */
-			//if(l!=null) {
-			//	for (int i=0; i<l.size(); i++) {
-			//		Player a=(Player)l.get(i);
-			//		a.updateState(state);
-			//		}
-			//}
 			/* Manda el mapa a los Amigos */
 			if(l!=null) {
 				for (int i=0; i<l.size(); i++) {
 					Player a=(Player)l.get(i);
-					a.updateState(state);
+					a.updateState(tB.state);
 					}
 			}
-			ghost1.updateState(state);
-			ghost2.updateState(state);
-			ghost3.updateState(state);
-			ghost4.updateState(state);
+			ghost1.updateState(tB.state);
+			ghost2.updateState(tB.state);
+			ghost3.updateState(tB.state);
+			ghost4.updateState(tB.state);
 			/* Draw the top menu bar*/
-			g.setColor(Color.YELLOW);
-			g.setFont(font);
-			if (demo)
-				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+highScore, 20, 10);
-			else
-				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore, 20, 10);
+			puntuaciones(g);
 			New++;
 		}
 		/* Second frame of new game */
@@ -324,16 +316,21 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.setColor(Color.BLACK);
 		g.fillRect(player.lastX, player.lastY, 20, 20);
 		// Borra los amigos
-		for (int i=0; i<l.size(); i++) {
-			Player p=(Player)l.get(i);
-			g.fillRect(p.lastX, p.lastY, 20, 20);
-		}
+		borrandoAmigos(l, g);
 		g.fillRect(ghost1.lastX, ghost1.lastY, 20, 20);
 		g.fillRect(ghost2.lastX, ghost2.lastY, 20, 20);
 		g.fillRect(ghost3.lastX, ghost3.lastY, 20, 20);
 		g.fillRect(ghost4.lastX, ghost4.lastY, 20, 20);
-		/* Eat pellets */
-		if ( pellets[player.pelletX][player.pelletY]&&New!=2&&New!=3)
+		/* Dibuja Scores con cambio de pacman a fantasma */
+		if (cambio) {
+			g.setColor(Color.BLACK);
+			g.fillRect(0, 0, 600, 20);
+			puntuaciones(g);
+			pintandoAmigos(l, g);
+			cambio=false;
+		}
+		/* Eat pellets */ // Solo si es comecoco
+		if (player.getComecoco()&&tB.pellets[player.pelletX][player.pelletY]&&New!=2&&New!=3)
 		{
 			lastPelletEatenX=player.pelletX;
 			lastPelletEatenY=player.pelletY;
@@ -342,24 +339,13 @@ public class Board extends JPanel implements java.io.Serializable {
 			/* Increment pellets eaten value to track for end game */
 			player.pelletsEaten++;
 			/* Delete the pellet*/
-			pellets[player.pelletX][player.pelletY]=false;
+			tB.pellets[player.pelletX][player.pelletY]=false;
 			/* Increment the score */
 			player.currScore+=50;
 			/* Update the screen to reflect the new score */
 			g.setColor(Color.BLACK);
 			g.fillRect(0, 0, 600, 20);
-			g.setColor(Color.YELLOW);
-			g.setFont(font);
-			if (demo)
-				g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+highScore, 20, 10);
-			else {
-				if(player.getComecoco()) {
-					g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Eres Pacman!", 20, 10);
-				}
-				else {
-					g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Fantasma", 20, 10);
-				}
-			}
+			puntuaciones(g);
 			/* If this was the last pellet */
 			if (player.pelletsEaten==173)
 			{
@@ -386,23 +372,20 @@ public class Board extends JPanel implements java.io.Serializable {
 			sounds.nomNomStop();
 		}
 		/* Replace pellets that have been run over by ghosts */
-		if ( pellets[ghost1.lastPelletX][ghost1.lastPelletY])
+		if(tB.pellets[ghost1.lastPelletX][ghost1.lastPelletY])
 			fillPellet(ghost1.lastPelletX, ghost1.lastPelletY, g);
-		if ( pellets[ghost2.lastPelletX][ghost2.lastPelletY])
+		if(tB.pellets[ghost2.lastPelletX][ghost2.lastPelletY])
 			fillPellet(ghost2.lastPelletX, ghost2.lastPelletY, g);
-		if ( pellets[ghost3.lastPelletX][ghost3.lastPelletY])
+		if(tB.pellets[ghost3.lastPelletX][ghost3.lastPelletY])
 			fillPellet(ghost3.lastPelletX, ghost3.lastPelletY, g);
-		if ( pellets[ghost4.lastPelletX][ghost4.lastPelletY])
+		if(tB.pellets[ghost4.lastPelletX][ghost4.lastPelletY])
 			fillPellet(ghost4.lastPelletX, ghost4.lastPelletY, g);
-		/* Remplaza los pellets por donde pasan los amigos*/
-		//if(l!=null) {
-		//	for (int i=0; i<l.size(); i++) {
-		//		Player a=(Player)l.get(i);
-		//		// TÒDO evitar que lo haga con pacman
-		//		if ( pellets[a.lastPelletX][a.lastPelletY])
-		//			fillPellet(a.lastPelletX, a.lastPelletY, g);
-		//		}
-		//}
+		/* Remplaza los pellets por donde pasan los amigos fantasmas*/
+		for (int i=0; i<l.size(); i++) {
+			Player a=(Player)l.get(i);
+			if (!a.getComecoco()&&tB.pellets[a.lastPelletX][a.lastPelletY])
+				fillPellet(a.lastPelletX, a.lastPelletY, g);
+		}
 		/*Draw the ghosts */
 		if (ghost1.frameCount<5)
 		{
@@ -434,52 +417,7 @@ public class Board extends JPanel implements java.io.Serializable {
 				ghost1.frameCount++;
 		}
 		// Dibuja los Amigos Pacmans
-		for (int i=0; i<l.size(); i++) {
-			Player a=(Player)l.get(i);
-			// Si es nuestro propio player
-			if(a.getNombre().indexOf(player.getNombre())!=-1) {
-					a=player; // Sobreescribimos para usar el nuestro
-				}
-				// Si es comecoco se pinta
-				if(a.getComecoco()) {
-					/* Draw the pacman */
-					if (player.frameCount<5)
-					{
-						/* Draw mouth closed */
-						g.drawImage(pacmanImage, player.x, player.y, Color.BLACK, null);
-					}
-					else
-					{
-						/* Draw mouth open in appropriate direction */
-						if (player.frameCount>=10)
-							player.frameCount=0;
-						switch(player.currDirection)
-						{
-							case 'L':
-							g.drawImage(pacmanLeftImage, player.x, player.y, Color.BLACK, null);
-							break;
-							case 'R':
-							g.drawImage(pacmanRightImage, player.x, player.y, Color.BLACK, null);
-							break;
-							case 'U':
-							g.drawImage(pacmanUpImage, player.x, player.y, Color.BLACK, null);
-							break;
-							case 'D':
-							g.drawImage(pacmanDownImage, player.x, player.y, Color.BLACK, null);
-							break;
-						}
-					}
-				}
-				// Por defecto se pintan fantasmas
-				else {
-					if(a.frameCount<5) {
-						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
-					}
-					else {
-						g.drawImage(ghost11, a.x, a.y, Color.BLACK, null);
-					}
-				}
-			}
+		pintandoAmigos(l, g);
 		/* Draw the border around the game in case it was overwritten by ghost movement or something */
 		g.setColor(Color.WHITE);
 		g.drawRect(19, 19, 382, 382);
@@ -487,51 +425,6 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.setColor(Color.WHITE);
 		g.drawRect(19, 19, 382, 382);
 		}
-	/* Reset occurs on a new game*/
-	public void reset()
-	{
-		numLives=2;
-		state = new boolean[20][20];
-		pellets = new boolean[20][20];
-		/* Clear state and pellets arrays */
-		for(int i=0;i<20;i++)
-		{
-			for(int j=0;j<20;j++)
-			{
-				state[i][j]=true;
-				pellets[i][j]=true;
-			}
-		}
-		/* Handle the weird spots with no pellets*/
-		for(int i = 5;i<14;i++)
-		{
-			for(int j = 5;j<12;j++)
-			{
-				pellets[i][j]=false;
-			}
-		}
-		pellets[9][7] = false;
-		pellets[8][8] = false;
-		pellets[9][8] = false;
-		pellets[10][8] = false;
-	}
-	/*
-	Function is called during drawing of the map.
-	Whenever the a portion of the map is covered up with a barrier,
-	the map and pellets arrays are updated accordingly to note
-	that those are invalid locations to travel or put pellets
-	*/
-	public void updateMap(int x, int y, int width, int height)
-	{
-		for (int i=x/gridSize; i<x/gridSize+width/gridSize; i++)
-		{
-			for (int j=y/gridSize; j<y/gridSize+height/gridSize; j++)
-			{
-				state[i-1][j-1]=false;
-				pellets[i-1][j-1]=false;
-			}
-		}
-	}
 	/* Draws the appropriate number of lives on the bottom left of the screen.
 	Also draws the menu */
 	public void drawLives(Graphics g)
@@ -550,6 +443,7 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.setFont(font);
 		g.drawString("Reset", 100, max+5+gridSize);
 		g.drawString("Clear High Scores", 180, max+5+gridSize);
+		g.setColor(Color.RED); // Agregado
 		g.drawString("Exit", 350, max+5+gridSize);
 	}
 	/*  This function draws the board.  The pacman board is really complicated and can only feasibly be done
@@ -568,86 +462,46 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.drawRect(19, 19, 382, 382);
 		g.setColor(Color.BLUE);
 		g.fillRect(40, 40, 60, 20);
-		updateMap(40, 40, 60, 20);
 		g.fillRect(120, 40, 60, 20);
-		updateMap(120, 40, 60, 20);
 		g.fillRect(200, 20, 20, 40);
-		updateMap(200, 20, 20, 40);
 		g.fillRect(240, 40, 60, 20);
-		updateMap(240, 40, 60, 20);
 		g.fillRect(320, 40, 60, 20);
-		updateMap(320, 40, 60, 20);
 		g.fillRect(40, 80, 60, 20);
-		updateMap(40, 80, 60, 20);
 		g.fillRect(160, 80, 100, 20);
-		updateMap(160, 80, 100, 20);
 		g.fillRect(200, 80, 20, 60);
-		updateMap(200, 80, 20, 60);
 		g.fillRect(320, 80, 60, 20);
-		updateMap(320, 80, 60, 20);
 		g.fillRect(20, 120, 80, 60);
-		updateMap(20, 120, 80, 60);
 		g.fillRect(320, 120, 80, 60);
-		updateMap(320, 120, 80, 60);
 		g.fillRect(20, 200, 80, 60);
-		updateMap(20, 200, 80, 60);
 		g.fillRect(320, 200, 80, 60);
-		updateMap(320, 200, 80, 60);
 		g.fillRect(160, 160, 40, 20);
-		updateMap(160, 160, 40, 20);
 		g.fillRect(220, 160, 40, 20);
-		updateMap(220, 160, 40, 20);
 		g.fillRect(160, 180, 20, 20);
-		updateMap(160, 180, 20, 20);
 		g.fillRect(160, 200, 100, 20);
-		updateMap(160, 200, 100, 20);
 		g.fillRect(240, 180, 20, 20);
-		updateMap(240, 180, 20, 20);
 		g.setColor(Color.BLUE);
 		g.fillRect(120, 120, 60, 20);
-		updateMap(120, 120, 60, 20);
 		g.fillRect(120, 80, 20, 100);
-		updateMap(120, 80, 20, 100);
 		g.fillRect(280, 80, 20, 100);
-		updateMap(280, 80, 20, 100);
 		g.fillRect(240, 120, 60, 20);
-		updateMap(240, 120, 60, 20);
 		g.fillRect(280, 200, 20, 60);
-		updateMap(280, 200, 20, 60);
 		g.fillRect(120, 200, 20, 60);
-		updateMap(120, 200, 20, 60);
 		g.fillRect(160, 240, 100, 20);
-		updateMap(160, 240, 100, 20);
 		g.fillRect(200, 260, 20, 40);
-		updateMap(200, 260, 20, 40);
 		g.fillRect(120, 280, 60, 20);
-		updateMap(120, 280, 60, 20);
 		g.fillRect(240, 280, 60, 20);
-		updateMap(240, 280, 60, 20);
 		g.fillRect(40, 280, 60, 20);
-		updateMap(40, 280, 60, 20);
 		g.fillRect(80, 280, 20, 60);
-		updateMap(80, 280, 20, 60);
 		g.fillRect(320, 280, 60, 20);
-		updateMap(320, 280, 60, 20);
 		g.fillRect(320, 280, 20, 60);
-		updateMap(320, 280, 20, 60);
 		g.fillRect(20, 320, 40, 20);
-		updateMap(20, 320, 40, 20);
 		g.fillRect(360, 320, 40, 20);
-		updateMap(360, 320, 40, 20);
 		g.fillRect(160, 320, 100, 20);
-		updateMap(160, 320, 100, 20);
 		g.fillRect(200, 320, 20, 60);
-		updateMap(200, 320, 20, 60);
 		g.fillRect(40, 360, 140, 20);
-		updateMap(40, 360, 140, 20);
 		g.fillRect(240, 360, 140, 20);
-		updateMap(240, 360, 140, 20);
 		g.fillRect(280, 320, 20, 40);
-		updateMap(280, 320, 20, 60);
 		g.fillRect(120, 320, 20, 60);
-		updateMap(120, 320, 20, 60);
 		drawLives(g);
 	}
 	/* Draws the pellets on the screen */
@@ -658,7 +512,7 @@ public class Board extends JPanel implements java.io.Serializable {
 		{
 			for (int j=1; j<20; j++)
 			{
-				if ( pellets[i-1][j-1])
+				if (tB.pellets[i-1][j-1])
 					g.fillOval(i*20+8, j*20+8, 4, 4);
 			}
 		}
@@ -666,8 +520,10 @@ public class Board extends JPanel implements java.io.Serializable {
 	/* Draws one individual pellet.  Used to redraw pellets that ghosts have run over */
 	public void fillPellet(int x, int y, Graphics g)
 	{
+		Color a=g.getColor(); // Necesito restaurar el color
 		g.setColor(Color.YELLOW);
 		g.fillOval(x*20+28, y*20+28, 4, 4);
+		g.setColor(a); // Necesito restaurar el color
 	}
 	/* Devuelve el player de la lista segun el su nombre*/
 	public Player PlayerPropio(String nombre) throws Exception {
@@ -686,6 +542,48 @@ public class Board extends JPanel implements java.io.Serializable {
 			throw new Exception(nombre+" no encontrado.");
 		}
 	}
+	/* Funcion para actualizar los datos del servidor y del player */
+	public void rmiUpdate() {
+		// Actualiza los datos del player en servidor
+		if (player!=null) {
+			try	{
+				srv.updatePlayer(player);
+			}
+			catch (Exception er) {
+				System.err.println("Excepcion enviando datos");
+				er.printStackTrace();
+			}
+		}
+		// Actualiza los datos del mapa en servidor
+		if(tB!=null) {
+			try	{
+				srv.updateTablero(tB);
+			}
+			catch (Exception er) {
+				System.err.println("Excepcion enviando datos");
+				er.printStackTrace();
+			}
+		}
+		// Pide la lista al servidor
+		try	{
+			setAmigos(srv.listaAmigos());
+		}
+		catch (Exception er) {
+			System.err.println("Excepcion en la lista de amigos conectados");
+			er.printStackTrace();
+		}
+		// Pide el tablero al servidor
+		try	{
+			setTablero(srv.getTablero());
+		}
+		catch (Exception er) {
+			System.err.println("Excepcion en el tablero");
+			er.printStackTrace();
+		}
+		if(primeraEjecucion) {primeraEjecucion=false; }
+		updatePlayerData();
+	}
+
 	public void setAmigos(List<Player> a) {
 		boolean aumento=false;
 		// Si existe l, se comprueba si han aumentado los clientes
@@ -699,18 +597,33 @@ public class Board extends JPanel implements java.io.Serializable {
 			if(primeraEjecucion) {
 				// Tambien asignamos un Player desde la lista al juego
 				try {
-					System.out.println("aqui");
 					player=PlayerPropio(getNombre());
 				}
 				catch (Exception e) {
 					System.err.println("Excepcion en Amigos: ");
 					e.printStackTrace();
 				}
-				primeraEjecucion=false;
+
 			}
 		}
-		updatePlayerData();
 	}
+	/* Actualiza las pellets y los estados con la nueva informacion */
+	public void setTablero(Tablero a) {
+		if(primeraEjecucion) {
+			this.tB=a;
+		}
+		else {
+			for(int i=0; i<20; i++)
+			{
+				for(int j=0; j<20; j++)
+				{
+					tB.pellets[i][j]=a.pellets[i][j];
+				}
+			}
+			tB.updateState(a.state);
+		}
+	}
+	/* Imprime los amigos conectados */
 	public void imprimeListaAmigos() {
 		System.out.println("= Conectados =");
 		for (int i=0; i<l.size(); i++) {
@@ -718,12 +631,96 @@ public class Board extends JPanel implements java.io.Serializable {
 			System.out.println(p.getNombre());
 		}
 	}
+	/* Actualiza los datos del player con la nueva informacion*/
 	public void updatePlayerData() {
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
 			if(p.getNombre().indexOf(player.getNombre())!=-1) {
+				if (player.getComecoco()!=p.getComecoco()) {
+					cambio=true; // Actualiza los graficos si hubo cambio
+				}
 				player.setComecoco(p.getComecoco());
 			}
+		}
+	}
+	// Actualiza los graficos para no repetir el texto
+	public void puntuaciones(Graphics g) {
+		g.setColor(Color.YELLOW);
+		g.setFont(font);
+		if (demo)
+			g.drawString("DEMO MODE PRESS ANY KEY TO START A GAME\t High Score: "+highScore, 20, 10);
+		else {
+			if(player.getComecoco()) {
+				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Eres Pacman!", 20, 10);
+			}
+			else {
+				g.drawString("Score: "+(player.currScore)+"\t High Score: "+highScore+" Fantasma", 20, 10);
+			}
+		}
+	}
+	public void pintandoAmigos(List<Player> l, Graphics g) {
+		// Borra los Amigos
+		borrandoAmigos(l, g);
+		// Dibuja los Amigos Pacmans
+		for (int i=0; i<l.size(); i++) {
+			Player a=(Player)l.get(i);
+			// Si es nuestro propio player
+			if(a.getNombre().indexOf(player.getNombre())!=-1) {
+					a=player; // Sobreescribimos para usar el nuestro
+				}
+				// Si es comecoco se pinta
+				if(a.getComecoco()) {
+					/* Draw the pacman */
+					if (a.frameCount<5)
+					{
+						/* Draw mouth closed */
+						g.drawImage(pacmanImage, a.x, a.y, Color.BLACK, null);
+					}
+					else
+					{
+						/* Draw mouth open in appropriate direction */
+						if (a.frameCount>=10)
+							a.frameCount=0;
+						switch(a.currDirection)
+						{
+							case 'L':
+							g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'R':
+							g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'U':
+							g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'D':
+							g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
+							break;
+						}
+					}
+				}
+				// Por defecto se pintan fantasmas
+				else {
+					if(a.frameCount<5) {
+						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
+					}
+					else {
+						g.drawImage(ghost11, a.x, a.y, Color.BLACK, null);
+					}
+				}
+			}
+		/* Repintado de los Amigos */
+		if(l!=null) {
+			for (int i=0; i<l.size(); i++) {
+				Player a=(Player)l.get(i);
+				repaint(a.x-20, a.y-20, 80, 80);
+				}
+		}
+	}
+	public void borrandoAmigos(List<Player> l, Graphics g) {
+		// Borra los amigos
+		for (int i=0; i<l.size(); i++) {
+			Player p=(Player)l.get(i);
+			g.fillRect(p.lastX, p.lastY, 20, 20);
 		}
 	}
 	public String getNombre() {
@@ -734,5 +731,8 @@ public class Board extends JPanel implements java.io.Serializable {
 	}
 	public Player getPlayer () {
 		return this.player;
+	}
+	public void reset() {
+		numLives=2;
 	}
 }
