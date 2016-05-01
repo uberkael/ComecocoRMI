@@ -49,7 +49,7 @@ cliente2:
 ####################################
 jar:
 	# No funciona usar Intellij
-	# jar cvfm ComecocosC.jar highScores.txt ClientePac.class BoardS.class BoardN.class Player.class img/ sounds/
+	# jar cvfm ComecocosC.jar highScores.txt ClientePac.class BoardS.class Board.class Player.class img/ sounds/
 ############
 # Limpieza #
 ############

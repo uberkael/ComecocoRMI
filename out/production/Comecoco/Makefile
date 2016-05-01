@@ -49,12 +49,12 @@ cliente2:
 ####################################
 jar:
 	# No funciona usar Intellij
-	# jar cvfm ComecocosC.jar highScores.txt ClientePac.class BoardS.class BoardN.class Player.class img/ sounds/
+	# jar cvfm ComecocosC.jar highScores.txt ClientePac.class BoardS.class Board.class Player.class img/ sounds/
 ############
 # Limpieza #
 ############
 clean:
-	rm -fr *.class *.jar 2>/dev/null
+	rm -fr *.class 2>/dev/null
 
 
 

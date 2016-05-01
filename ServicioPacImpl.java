@@ -1,9 +1,13 @@
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.*;
 import java.rmi.*;
 import java.rmi.server.*;
 class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 	// Contiene una lista de players
 	List<Player> l;
+	// Maxima puntuacion
+	int highScore;
 	// Constructor
 	ServicioPacImpl() throws RemoteException {
 		l=new LinkedList<Player>();
@@ -96,9 +100,31 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 	public List<Player> listaAmigos() throws Exception {
 		return l;
 	}
-	/* Crea una instancia de la partida con un jugador*/
-	public BoardS creajuego(String nombre) throws RemoteException {
-		BoardS c=new BoardS(nombre);
-		return c;
+	/* Reads the high scores file and saves it */
+	public void initHighScores() {
+		File file=new File("highScores.txt");
+		Scanner sc;
+		try {
+			sc=new Scanner(file);
+			highScore=sc.nextInt();
+			sc.close();
+		}
+		catch (Exception e) {
+		}
+	}
+	/* Writes the new high score to a file and sets flag to update it on screen */
+	public void updateScore(int score)
+	{
+		PrintWriter out;
+		try
+		{
+			out=new PrintWriter("highScores.txt");
+			out.println(score);
+			out.close();
+		}
+		catch(Exception e) {
+		}
+		highScore=score;
+		//TODO //clearHighScores=true;
 	}
 }

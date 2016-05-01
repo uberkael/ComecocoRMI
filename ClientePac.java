@@ -14,11 +14,12 @@ class ClientePac {
 			System.setSecurityManager(new SecurityManager());
 		try {
 			ServicioPac srv=(ServicioPac) Naming.lookup("//"+args[0]+":"+puerto+"/Pacman");
-			// Agrega un nuevo player a la lista del servidor
-			srv.crearPlayer(args[1]);
-			// Crea un nuevo juego con el nombre del lugador
-			BoardN empaquetado=new BoardN(srv.creajuego(args[1]));
-			Pacman juego=new Pacman(srv, empaquetado);
+			// Crea un tablero local con el nombre del lugador
+			Board tablero=new Board(args[1]);
+			// Agrega un player a la lista del servidor con el nombre
+			srv.crearPlayer(tablero.getNombre());
+			// Crea un juego de pacman local con el tablero y el servidor
+			new Pacman(srv, tablero);
 		}
 		catch (RemoteException e) {
 			System.err.println("Error de comunicacion: "+e.toString());

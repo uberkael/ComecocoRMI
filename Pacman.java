@@ -14,13 +14,13 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	long titleTimer=-1;
 	long timer=-1;
 	/* Create a new board */
-	BoardN b;
+	Board b;
 	/* This timer is used to do request new frames be drawn*/
 	javax.swing.Timer frameTimer;
 	/* Contendra el servicio servidor para actualizarle la posicion */
 	ServicioPac srv;
 	/* This constructor creates the entire game essentially */
-	public Pacman(ServicioPac server, BoardN boardNoSerializable)
+	public Pacman(ServicioPac server, Board boardNoSerializable)
 	{
 		/* Asigno el servidor */
 		srv=server;
@@ -29,7 +29,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 		/* Asigna la lista de amigos conectados desde el servidor */
 		try	{
 			b.setAmigos(srv.listaAmigos());
-			// System.out.println(srv.posicionPlayer(b.bS.player));
+			// System.out.println(srv.posicionPlayer(b.player));
 		}
 		catch (Exception er) {
 			System.err.println("Excepcion en la lista de amigos conectados");
@@ -49,7 +49,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 		f.setVisible(true);
 		f.setResizable(false);
 		/* Set the New flag to 1 because this is a new game */
-		b.bS.New=1;
+		b.New=1;
 		/* Manually call the first frameStep to initialize the game. */
 		stepFrame(true);
 		/* Create a timer that calls stepFrame every 30 milliseconds */
@@ -69,10 +69,10 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	*/
 	public void repaint()
 	{
-		if (b.bS.player.teleport)
+		if (b.player.teleport)
 		{
-			b.repaint(b.bS.player.lastX-20, b.bS.player.lastY-20, 80, 80);
-			b.bS.player.teleport=false;
+			b.repaint(b.player.lastX-20, b.player.lastY-20, 80, 80);
+			b.player.teleport=false;
 		}
 		b.repaint(0, 0, 600, 20);
 		b.repaint(0, 420, 600, 40);
@@ -83,20 +83,20 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 				b.repaint(a.x-20, a.y-20, 80, 80);
 				}
 		}
-		b.repaint(b.bS.player.x-20, b.bS.player.y-20, 80, 80);
-		b.repaint(b.bS.ghost1.x-20, b.bS.ghost1.y-20, 80, 80);
-		b.repaint(b.bS.ghost2.x-20, b.bS.ghost2.y-20, 80, 80);
-		b.repaint(b.bS.ghost3.x-20, b.bS.ghost3.y-20, 80, 80);
-		b.repaint(b.bS.ghost4.x-20, b.bS.ghost4.y-20, 80, 80);
+		b.repaint(b.player.x-20, b.player.y-20, 80, 80);
+		b.repaint(b.ghost1.x-20, b.ghost1.y-20, 80, 80);
+		b.repaint(b.ghost2.x-20, b.ghost2.y-20, 80, 80);
+		b.repaint(b.ghost3.x-20, b.ghost3.y-20, 80, 80);
+		b.repaint(b.ghost4.x-20, b.ghost4.y-20, 80, 80);
 	}
 	/* Steps the screen forward one frame */
 	public void stepFrame(boolean New)
 	{
 		// Envia la posicion actual al servidor, que la imprimirá
 		try	{
-			srv.updatePlayer(b.bS.player);
+			srv.updatePlayer(b.player);
 			b.setAmigos(srv.listaAmigos());
-			// System.out.println(srv.posicionPlayer(b.bS.player));
+			// System.out.println(srv.posicionPlayer(b.player));
 		}
 		catch (Exception er) {
 			System.err.println("Excepcion en la posicion o player");
@@ -116,7 +116,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 		}
 	/* New can either be specified by the New parameter in stepFrame function call 	or by the state
 	of b.New.  Update New accordingly */
-		New=New||(b.bS.New!=0) ;
+		New=New||(b.New!=0) ;
 	/* If this is the title screen, make sure to only stay on the title screen for 	5 seconds.
 	If after 5 seconds the user hasn't started a game, start up demo mode */
 		if (b.titleScreen)
@@ -129,7 +129,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			if (currTime-titleTimer>=5000)
 			{
 				b.titleScreen=false;
-				// b.bS.demo=true;
+				// b.demo=true;
 				titleTimer=-1;
 			}
 			b.repaint();
@@ -159,13 +159,13 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 		{
 	/* The pacman player has two functions, demoMove if we're in demo mode and 	move if we're in
 	user playable mode.  Call the appropriate one here */
-			if (b.bS.demo)
+			if (b.demo)
 			{
-				b.bS.player.demoMove();
+				b.player.demoMove();
 			}
 			else
 			{
-				b.bS.player.move();
+				b.player.move();
 			}
 	/* Also move the ghosts, and update the pellet states */
 			/* Repintado de los Amigos */
@@ -175,18 +175,18 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 					b.repaint(a.x-20, a.y-20, 80, 80);
 					}
 			}
-			b.bS.ghost1.move();
-			b.bS.ghost2.move();
-			b.bS.ghost3.move();
-			b.bS.ghost4.move();
-			b.bS.player.updatePellet();
-			b.bS.ghost1.updatePellet();
-			b.bS.ghost2.updatePellet();
-			b.bS.ghost3.updatePellet();
-			b.bS.ghost4.updatePellet();
+			b.ghost1.move();
+			b.ghost2.move();
+			b.ghost3.move();
+			b.ghost4.move();
+			b.player.updatePellet();
+			b.ghost1.updatePellet();
+			b.ghost2.updatePellet();
+			b.ghost3.updatePellet();
+			b.ghost4.updatePellet();
 		}
 	/* We either have a new game or the user has died, either way we have to reset 	the board */
-		if (b.bS.stopped||New)
+		if (b.stopped||New)
 		{
 		/*Temporarily stop advancing frames */
 			frameTimer.stop();
@@ -197,23 +197,23 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 				stepFrame(false);
 			}
 		/* Move all game elements back to starting positions and orientations */
-			b.bS.player.currDirection='L';
-			b.bS.player.direction='L';
-			b.bS.player.desiredDirection='L';
-			b.bS.player.x=200;
-			b.bS.player.y=300;
-			b.bS.ghost1.x=180;
-			b.bS.ghost1.y=180;
-			b.bS.ghost2.x=200;
-			b.bS.ghost2.y=180;
-			b.bS.ghost3.x=220;
-			b.bS.ghost3.y=180;
-			b.bS.ghost4.x=220;
-			b.bS.ghost4.y=180;
+			b.player.currDirection='L';
+			b.player.direction='L';
+			b.player.desiredDirection='L';
+			b.player.x=200;
+			b.player.y=300;
+			b.ghost1.x=180;
+			b.ghost1.y=180;
+			b.ghost2.x=200;
+			b.ghost2.y=180;
+			b.ghost3.x=220;
+			b.ghost3.y=180;
+			b.ghost4.x=220;
+			b.ghost4.y=180;
 		/* Advance a frame to display main state*/
 			b.repaint(0, 0, 600, 600);
 		/*Start advancing frames once again*/
-			b.bS.stopped=false;
+			b.stopped=false;
 			frameTimer.start();
 		}
 	/* Otherwise we're in a normal state, advance one frame*/
@@ -240,28 +240,28 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			return;
 		}
 		/* Pressing a key during a demo kills the demo mode and starts a new game 	*/
-		else if (b.bS.demo)
+		else if (b.demo)
 		{
-			b.bS.demo=false;
+			b.demo=false;
 			/* Stop any pacman eating sounds */
 			b.sounds.nomNomStop();
-			b.bS.New=1;
+			b.New=1;
 			return;
 		}
 		/* Otherwise, key presses control the player!*/
 		switch(e.getKeyCode())
 		{
 			case KeyEvent.VK_LEFT:
-				b.bS.player.desiredDirection='L';
+				b.player.desiredDirection='L';
 				break;
 			case KeyEvent.VK_RIGHT:
-				b.bS.player.desiredDirection='R';
+				b.player.desiredDirection='R';
 				break;
 			case KeyEvent.VK_UP:
-				b.bS.player.desiredDirection='U';
+				b.player.desiredDirection='U';
 				break;
 			case KeyEvent.VK_DOWN:
-				b.bS.player.desiredDirection='D';
+				b.player.desiredDirection='D';
 				break;
 		}
 		repaint();
@@ -281,7 +281,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			if ( 100<=x&&x<=150)
 			{
 				/* New game has been clicked */
-				b.bS.New=1;
+				b.New=1;
 			}
 			else if (180<=x&&x<=300)
 			{
