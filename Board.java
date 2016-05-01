@@ -130,7 +130,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			if (dying!=1)
 				temp=100;
 			else
-				temp=100;;
+				temp=100;
 			/* If it's time to draw a new death frame... */
 			if (currTime-timer>=temp)
 			{
@@ -266,13 +266,13 @@ public class Board extends JPanel implements java.io.Serializable {
 		}
 		/* Drawing optimization */
 		/* Optimiza a los Amigos */
-		//if(l!=null) {
-		//	for (int i=0; i<l.size(); i++) {
-		//		Player a=(Player)l.get(i);
-		//		g.copyArea(a.x-20, a.y-20, 80, 80, 0, 0);
-		//		}
-		//}
-		g.copyArea(player.x-20, player.y-20, 80, 80, 0, 0);
+		if(l!=null) {
+			for (int i=0; i<l.size(); i++) {
+				Player a=(Player)l.get(i);
+				g.copyArea(a.x-20, a.y-20, 80, 80, 0, 0);
+				}
+		}
+		// g.copyArea(player.x-20, player.y-20, 80, 80, 0, 0);
 		g.copyArea(ghost1.x-20, ghost1.y-20, 80, 80, 0, 0);
 		g.copyArea(ghost2.x-20, ghost2.y-20, 80, 80, 0, 0);
 		g.copyArea(ghost3.x-20, ghost3.y-20, 80, 80, 0, 0);
