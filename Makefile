@@ -37,13 +37,21 @@ cliente:
 	# java ClientePac localhost 55555 Adri # Eliminado eleccion del puerto
 	java ClientePac localhost Adri
 #####################
-# Ejecuta Cliente  #
+# Ejecuta Cliente 2 #
 #####################
 cliente2:
 	# Eliminada la necesidad de comando de permisos
 	# java -Djava.security.policy=cliente.permisos ClientePac localhost 55555 KaeL
 	# java ClientePac localhost 55555 KaeL # Eliminado eleccion del puerto
 	java ClientePac localhost KaeL
+#####################
+# Ejecuta Cliente 3 #
+#####################
+cliente3:
+	# Eliminada la necesidad de comando de permisos
+	# java -Djava.security.policy=cliente.permisos ClientePac localhost 55555 KaeL
+	# java ClientePac localhost 55555 KaeL # Eliminado eleccion del puerto
+	java ClientePac localhost Jones fanta
 ####################################
 # Crea un jar para la demostracion #
 ####################################

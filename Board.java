@@ -51,10 +51,13 @@ public class Board extends JPanel implements java.io.Serializable {
 	ServicioPac srv;
 	/* Si hay un cambio de estado*/
 	boolean cambio=false;
+	/* Fantasmas de IA */
+	boolean fantasmas;
 	/* Costructor */
 	// public Board(Board boardSerializable) {
-	public Board(ServicioPac server, String a) {
+	public Board(ServicioPac server, String a, boolean fantas) {
 		nombre=a;
+		fantasmas=fantas;
 		/* Asigno el servidor */
 		srv=server;
 		titleScreen=true;
@@ -278,22 +281,24 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.copyArea(ghost3.x-20, ghost3.y-20, 80, 80, 0, 0);
 		g.copyArea(ghost4.x-20, ghost4.y-20, 80, 80, 0, 0);
 		/* Detect collisions */
-		// if (player.x==ghost1.x&&Math.abs(player.y-ghost1.y)<10)
-		// 	oops=true;
-		// else if (player.x==ghost2.x&&Math.abs(player.y-ghost2.y)<10)
-		// 	oops=true;
-		// else if (player.x==ghost3.x&&Math.abs(player.y-ghost3.y)<10)
-		// 	oops=true;
-		// else if (player.x==ghost4.x&&Math.abs(player.y-ghost4.y)<10)
-		// 	oops=true;
-		// else if (player.y==ghost1.y&&Math.abs(player.x-ghost1.x)<10)
-		// 	oops=true;
-		// else if (player.y==ghost2.y&&Math.abs(player.x-ghost2.x)<10)
-		// 	oops=true;
-		// else if (player.y==ghost3.y&&Math.abs(player.x-ghost3.x)<10)
-		// 	oops=true;
-		// else if (player.y==ghost4.y&&Math.abs(player.x-ghost4.x)<10)
-		// 	oops=true;
+		if(fantasmas&&player.getComecoco()) {
+		if (player.x==ghost1.x&&Math.abs(player.y-ghost1.y)<10)
+				oops=true;
+			else if (player.x==ghost2.x&&Math.abs(player.y-ghost2.y)<10)
+				oops=true;
+			else if (player.x==ghost3.x&&Math.abs(player.y-ghost3.y)<10)
+				oops=true;
+			else if (player.x==ghost4.x&&Math.abs(player.y-ghost4.y)<10)
+				oops=true;
+			else if (player.y==ghost1.y&&Math.abs(player.x-ghost1.x)<10)
+				oops=true;
+			else if (player.y==ghost2.y&&Math.abs(player.x-ghost2.x)<10)
+				oops=true;
+			else if (player.y==ghost3.y&&Math.abs(player.x-ghost3.x)<10)
+				oops=true;
+			else if (player.y==ghost4.y&&Math.abs(player.x-ghost4.x)<10)
+			oops=true;
+		}
 		/* Fantasma matador */
 		Player k=PlayerFantasma();
 		if (k!=null) {
@@ -378,14 +383,16 @@ public class Board extends JPanel implements java.io.Serializable {
 			sounds.nomNomStop();
 		}
 		/* Replace pellets that have been run over by ghosts */
-		if(tB.pellets[ghost1.lastPelletX][ghost1.lastPelletY])
-			fillPellet(ghost1.lastPelletX, ghost1.lastPelletY, g);
-		if(tB.pellets[ghost2.lastPelletX][ghost2.lastPelletY])
-			fillPellet(ghost2.lastPelletX, ghost2.lastPelletY, g);
-		if(tB.pellets[ghost3.lastPelletX][ghost3.lastPelletY])
-			fillPellet(ghost3.lastPelletX, ghost3.lastPelletY, g);
-		if(tB.pellets[ghost4.lastPelletX][ghost4.lastPelletY])
-			fillPellet(ghost4.lastPelletX, ghost4.lastPelletY, g);
+		if(fantasmas) {
+			if(tB.pellets[ghost1.lastPelletX][ghost1.lastPelletY])
+				fillPellet(ghost1.lastPelletX, ghost1.lastPelletY, g);
+			if(tB.pellets[ghost2.lastPelletX][ghost2.lastPelletY])
+				fillPellet(ghost2.lastPelletX, ghost2.lastPelletY, g);
+			if(tB.pellets[ghost3.lastPelletX][ghost3.lastPelletY])
+				fillPellet(ghost3.lastPelletX, ghost3.lastPelletY, g);
+			if(tB.pellets[ghost4.lastPelletX][ghost4.lastPelletY])
+				fillPellet(ghost4.lastPelletX, ghost4.lastPelletY, g);
+		}
 		/* Remplaza los pellets por donde pasan los amigos fantasmas*/
 		for (int i=0; i<l.size(); i++) {
 			Player a=(Player)l.get(i);
@@ -395,31 +402,35 @@ public class Board extends JPanel implements java.io.Serializable {
 			}
 		}
 		/*Draw the ghosts */
-		if (ghost1.frameCount<5)
+		if (ghost1.frameCount<500)
 		{
-			/* Draw first frame of ghosts */
-			g.drawImage(ghost20, ghost1.x, ghost1.y, Color.BLACK, null);
-			// ghost10.paintIcon(this, g, ghost1.x, ghost1.y);
-			g.drawImage(ghost20, ghost2.x, ghost2.y, Color.BLACK, null);
-			// ghost20.paintIcon(this, g, ghost2.x, ghost2.y);
-			g.drawImage(ghost30, ghost3.x, ghost3.y, Color.BLACK, null);
-			// ghost30.paintIcon(this, g, ghost3.x, ghost3.y);
-			g.drawImage(ghost40, ghost4.x, ghost4.y, Color.BLACK, null);
-			// ghost40.paintIcon(this, g, ghost4.x, ghost4.y);
+			if(fantasmas) {
+				/* Draw first frame of ghosts */
+				g.drawImage(ghost20, ghost1.x, ghost1.y, Color.BLACK, null);
+				// ghost10.paintIcon(this, g, ghost1.x, ghost1.y);
+				g.drawImage(ghost20, ghost2.x, ghost2.y, Color.BLACK, null);
+				// ghost20.paintIcon(this, g, ghost2.x, ghost2.y);
+				g.drawImage(ghost30, ghost3.x, ghost3.y, Color.BLACK, null);
+				// ghost30.paintIcon(this, g, ghost3.x, ghost3.y);
+				g.drawImage(ghost40, ghost4.x, ghost4.y, Color.BLACK, null);
+				// ghost40.paintIcon(this, g, ghost4.x, ghost4.y);
+				}
 			ghost1.frameCount++;
 		}
 		else
 		{
-			/* Draw second frame of ghosts */
-			g.drawImage(ghost21, ghost1.x, ghost1.y, Color.BLACK, null);
-			// ghost11.paintIcon(this, g, ghost1.x, ghost1.y);
-			g.drawImage(ghost21, ghost2.x, ghost2.y, Color.BLACK, null);
-			// ghost21.paintIcon(this, g, ghost2.x, ghost2.y);
-			g.drawImage(ghost31, ghost3.x, ghost3.y, Color.BLACK, null);
-			// ghost31.paintIcon(this, g, ghost3.x, ghost3.y);
-			g.drawImage(ghost41, ghost4.x, ghost4.y, Color.BLACK, null);
-			// ghost41.paintIcon(this, g, ghost4.x, ghost4.y);
-			if (ghost1.frameCount>=10)
+			if(fantasmas) {
+				/* Draw second frame of ghosts */
+				g.drawImage(ghost21, ghost1.x, ghost1.y, Color.BLACK, null);
+				// ghost11.paintIcon(this, g, ghost1.x, ghost1.y);
+				g.drawImage(ghost21, ghost2.x, ghost2.y, Color.BLACK, null);
+				// ghost21.paintIcon(this, g, ghost2.x, ghost2.y);
+				g.drawImage(ghost31, ghost3.x, ghost3.y, Color.BLACK, null);
+				// ghost31.paintIcon(this, g, ghost3.x, ghost3.y);
+				g.drawImage(ghost41, ghost4.x, ghost4.y, Color.BLACK, null);
+				// ghost41.paintIcon(this, g, ghost4.x, ghost4.y);
+			}
+			if (ghost1.frameCount>=1000)
 				ghost1.frameCount=0;
 			else
 				ghost1.frameCount++;
@@ -640,6 +651,7 @@ public class Board extends JPanel implements java.io.Serializable {
 				}
 			}
 			tB.updateState(a.state);
+			tB.setHighScore(a.getHighScore());
 		}
 	}
 	/* Imprime los amigos conectados */
@@ -686,12 +698,11 @@ public class Board extends JPanel implements java.io.Serializable {
 			Player a=(Player)l.get(i);
 			// Si es nuestro propio player
 			if(a.getNombre().indexOf(player.getNombre())!=-1) {
-					a=player; // Sobreescribimos para usar el nuestro
-				}
+				a=player;
 				// Si es comecoco se pinta
 				if(a.getComecoco()) {
 					/* Draw the pacman */
-					if (a.frameCount<5)
+					if (player.frameCount<5)
 					{
 						/* Draw mouth closed */
 						g.drawImage(pacmanImage, a.x, a.y, Color.BLACK, null);
@@ -699,8 +710,8 @@ public class Board extends JPanel implements java.io.Serializable {
 					else
 					{
 						/* Draw mouth open in appropriate direction */
-						if (a.frameCount>=10)
-							a.frameCount=0;
+						if (player.frameCount>=10)
+							player.frameCount=0;
 						switch(a.currDirection)
 						{
 							case 'L':
@@ -720,14 +731,65 @@ public class Board extends JPanel implements java.io.Serializable {
 				}
 				// Por defecto se pintan fantasmas
 				else {
-					if(a.frameCount<5) {
+					if(ghost1.frameCount<500) {
 						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
+						// ghost1.frameCount++;
 					}
 					else {
+						// if (ghost1.frameCount>=10)
+						// 	ghost1.frameCount=0;
+						// else
+						// 	ghost1.frameCount++;
 						g.drawImage(ghost11, a.x, a.y, Color.BLACK, null);
 					}
 				}
 			}
+			else {
+				// Si es comecoco se pinta
+				if(a.getComecoco()) {
+					/* Draw the pacman */
+					if (ghost1.frameCount<50)
+					{
+						/* Draw mouth closed */
+						g.drawImage(pacmanImage, a.x, a.y, Color.BLACK, null);
+					}
+					else
+					{
+						/* Draw mouth open in appropriate direction */
+						switch(a.currDirection)
+						{
+							case 'L':
+							g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'R':
+							g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'U':
+							g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
+							break;
+							case 'D':
+							g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
+							break;
+						}
+					}
+				}
+				// Por defecto se pintan fantasmas
+				else {
+					if(ghost1.frameCount<50) {
+						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
+						// ghost1.frameCount++;
+					}
+					else {
+						// if (ghost1.frameCount>=10)
+						// 	ghost1.frameCount=0;
+						// else
+						// 	ghost1.frameCount++;
+						g.drawImage(ghost11, a.x, a.y, Color.BLACK, null);
+					}
+				}
+			}
+
+		}
 		/* Repintado de los Amigos */
 		if(l!=null) {
 			for (int i=0; i<l.size(); i++) {

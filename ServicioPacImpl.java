@@ -84,21 +84,21 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 	/* Promociona al que tenga mayor de todo el servidor puntuacion a Fantasma */
 	public void promocionaComecocos() throws Exception {
 		// Haya el maximo
-		int max=0;
-		int aux=0;
+		int max=tB.getHighScore();
+		int aux;
 		int unico=0; // Uno solo de los comecocos sera fantasma (pseudoaleatorio)
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
 			aux=p.getScore();
 			if (aux>=max) {
-				max=aux;
 				unico=i;
 			}
 		}
 		// El fantasma es el que más puntuacion tiene (hasta 1000 no habra ninguno)
+		// Aumentara en series de 1000
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
-			if (i==unico&&max>950) {
+			if (i==unico&&max>950&&max%1000==0) {
 				// Encontrado el player con mayor puntuacion
 				p.setComecoco(false);
 			}

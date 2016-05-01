@@ -71,10 +71,12 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 				}
 		}
 		b.repaint(b.player.x-20, b.player.y-20, 80, 80);
-		b.repaint(b.ghost1.x-20, b.ghost1.y-20, 80, 80);
-		b.repaint(b.ghost2.x-20, b.ghost2.y-20, 80, 80);
-		b.repaint(b.ghost3.x-20, b.ghost3.y-20, 80, 80);
-		b.repaint(b.ghost4.x-20, b.ghost4.y-20, 80, 80);
+		if(b.fantasmas) {
+			b.repaint(b.ghost1.x-20, b.ghost1.y-20, 80, 80);
+			b.repaint(b.ghost2.x-20, b.ghost2.y-20, 80, 80);
+			b.repaint(b.ghost3.x-20, b.ghost3.y-20, 80, 80);
+			b.repaint(b.ghost4.x-20, b.ghost4.y-20, 80, 80);
+		}
 	}
 	/* Steps the screen forward one frame */
 	public void stepFrame(boolean New)
@@ -161,15 +163,19 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 					b.repaint(a.x-20, a.y-20, 80, 80);
 					}
 			}
-			b.ghost1.move();
-			b.ghost2.move();
-			b.ghost3.move();
-			b.ghost4.move();
+			// No agregar nada o se estropea
 			b.player.updatePellet();
-			b.ghost1.updatePellet();
-			b.ghost2.updatePellet();
-			b.ghost3.updatePellet();
-			b.ghost4.updatePellet();
+			if(b.fantasmas) {
+				b.ghost1.move();
+				b.ghost2.move();
+				b.ghost3.move();
+				b.ghost4.move();
+				b.ghost1.updatePellet();
+				b.ghost2.updatePellet();
+				b.ghost3.updatePellet();
+				b.ghost4.updatePellet();
+			}
+
 		}
 	/* We either have a new game or the user has died, either way we have to reset 	the board */
 		if (b.stopped||New)
@@ -194,14 +200,17 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			else {
 				b.player.y=300;
 			}
-			b.ghost1.x=180;
-			b.ghost1.y=180;
-			b.ghost2.x=200;
-			b.ghost2.y=180;
-			b.ghost3.x=220;
-			b.ghost3.y=180;
-			b.ghost4.x=220;
-			b.ghost4.y=180;
+			if(b.fantasmas) {
+				b.ghost1.x=180;
+				b.ghost1.y=180;
+				b.ghost2.x=200;
+				b.ghost2.y=180;
+				b.ghost3.x=220;
+				b.ghost3.y=180;
+				b.ghost4.x=220;
+				b.ghost4.y=180;
+			}
+
 		/* Advance a frame to display main state*/
 			b.repaint(0, 0, 600, 600);
 		/*Start advancing frames once again*/
