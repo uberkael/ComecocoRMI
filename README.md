@@ -1,7 +1,8 @@
 # ComecocoRMI
 
-## Para la presentacion bajar Comecocos.jar y ejecutar:
-## java -jar Comecocos.jar IPdeServidor Nombre
+## Para la presentacion bajar Comecoco.jar y ejecutar:
+## java -jar Comecoco.jar IPdeServidor Nombre
+
 
 
 ## "Compile"

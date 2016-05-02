@@ -105,19 +105,29 @@ public class Board extends JPanel implements java.io.Serializable {
 	/* This is the main function that draws one entire frame of the game */
 	public void paint(Graphics g)
 	{
-		// Baja los datos del servidor
-		rmiUpdate();
-	/* If we're playing the dying animation, don't update the entire screen.
-	Just kill the pacman*/
+		// Baja los datos del servidor Solo cada 10 fotogramas
+		if(primeraEjecucion||ghost1.frameCount%10==0) {
+			// System.out.println("RMI UPDATE");
+			rmiUpdate();
+			// Limpiando el mapa de todos los defectos cada medio segundo
+			if(ghost1.frameCount%100==0)
+			{
+				drawBoard(g); // Redibuja el mapa para limpiar todos los defectos
+				drawPellets(g); // Repinta los pellets
+				puntuaciones(g); // Pinta las puntuaciones
+			}
+		}
+		/* If we're playing the dying animation, don't update the entire screen.
+		Just kill the pacman*/
 		if (dying>0)
 		{
-			/* Stop any pacman eating sounds */
+		/* Stop any pacman eating sounds */
 			sounds.nomNomStop();
-			/* Draw the pacman */
+		/* Draw the pacman */
 			g.drawImage(pacmanImage, player.x, player.y, Color.BLACK, null);
 			// pacmanImage.paintIcon(this, g, player.x, player.y);
 			g.setColor(Color.BLACK);
-			/* Kill the pacman */
+		/* Kill the pacman */
 			if (dying==4)
 				g.fillRect(player.x, player.y, 20, 7);
 			else if (dying==3)
@@ -128,8 +138,8 @@ public class Board extends JPanel implements java.io.Serializable {
 			{
 				g.fillRect(player.x, player.y, 20, 20);
 			}
-	/* Take .1 seconds on each frame of death, and then take 2 seconds
-	for the final frame to allow for the sound effect to end */
+			/* Take .1 seconds on each frame of death, and then take 2 seconds
+			for the final frame to allow for the sound effect to end */
 			long currTime=System.currentTimeMillis();
 			long temp;
 			if (dying!=1)
@@ -233,7 +243,7 @@ public class Board extends JPanel implements java.io.Serializable {
 				for (int i=0; i<l.size(); i++) {
 					Player a=(Player)l.get(i);
 					a.updateState(tB.state);
-					}
+				}
 			}
 			ghost1.updateState(tB.state);
 			ghost2.updateState(tB.state);
@@ -275,7 +285,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			for (int i=0; i<l.size(); i++) {
 				Player a=(Player)l.get(i);
 				g.copyArea(a.x-20, a.y-20, 80, 80, 0, 0);
-				}
+			}
 		}
 		// g.copyArea(player.x-20, player.y-20, 80, 80, 0, 0);
 		g.copyArea(ghost1.x-20, ghost1.y-20, 80, 80, 0, 0);
@@ -284,7 +294,7 @@ public class Board extends JPanel implements java.io.Serializable {
 		g.copyArea(ghost4.x-20, ghost4.y-20, 80, 80, 0, 0);
 		/* Detect collisions */
 		if(fantasmas&&player.getComecoco()) {
-		if (player.x==ghost1.x&&Math.abs(player.y-ghost1.y)<10)
+			if (player.x==ghost1.x&&Math.abs(player.y-ghost1.y)<10)
 				oops=true;
 			else if (player.x==ghost2.x&&Math.abs(player.y-ghost2.y)<10)
 				oops=true;
@@ -299,7 +309,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			else if (player.y==ghost3.y&&Math.abs(player.x-ghost3.x)<10)
 				oops=true;
 			else if (player.y==ghost4.y&&Math.abs(player.x-ghost4.x)<10)
-			oops=true;
+				oops=true;
 		}
 		/* Fantasma matador */
 		Player k=PlayerFantasma();
@@ -401,6 +411,9 @@ public class Board extends JPanel implements java.io.Serializable {
 			// if (!a.getComecoco()&&tB.pellets[a.lastPelletX][a.lastPelletY])
 			if (!a.getComecoco()) {
 				fillPellet(a.lastPelletX, a.lastPelletY, g);
+				// Actualiza los pellets en el tablero (lo anterior es solo grafico)
+				// rmiUpdate();
+				// Actualiza los datos del mapa en servidor
 			}
 		}
 		/*Draw the ghosts */
@@ -416,7 +429,7 @@ public class Board extends JPanel implements java.io.Serializable {
 				// ghost30.paintIcon(this, g, ghost3.x, ghost3.y);
 				g.drawImage(ghost40, ghost4.x, ghost4.y, Color.BLACK, null);
 				// ghost40.paintIcon(this, g, ghost4.x, ghost4.y);
-				}
+			}
 			ghost1.frameCount++;
 		}
 		else
@@ -445,7 +458,7 @@ public class Board extends JPanel implements java.io.Serializable {
 		/* Draw the border around the game in case it was overwritten by ghost movement or something */
 		g.setColor(Color.WHITE);
 		g.drawRect(19, 19, 382, 382);
-		}
+	}
 	/* Draws the appropriate number of lives on the bottom left of the screen.
 	Also draws the menu */
 	public void drawLives(Graphics g)
@@ -724,31 +737,26 @@ public class Board extends JPanel implements java.io.Serializable {
 						switch(a.currDirection)
 						{
 							case 'L':
-							g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'R':
-							g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'U':
-							g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'D':
-							g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
+								break;
 						}
 					}
 				}
 				// Por defecto se pintan fantasmas
 				else {
-					if(ghost1.frameCount<500) {
+					if(player.frameCount<5) {
 						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
-						// ghost1.frameCount++;
 					}
 					else {
-						// if (ghost1.frameCount>=10)
-						// 	ghost1.frameCount=0;
-						// else
-						// 	ghost1.frameCount++;
 						g.drawImage(ghost11, a.x, a.y, Color.BLACK, null);
 					}
 				}
@@ -757,7 +765,7 @@ public class Board extends JPanel implements java.io.Serializable {
 				// Si es comecoco se pinta
 				if(a.getComecoco()) {
 					/* Draw the pacman */
-					if (ghost1.frameCount<50)
+					if (ghost1.frameCount<500)
 					{
 						/* Draw mouth closed */
 						g.drawImage(pacmanImage, a.x, a.y, Color.BLACK, null);
@@ -768,23 +776,23 @@ public class Board extends JPanel implements java.io.Serializable {
 						switch(a.currDirection)
 						{
 							case 'L':
-							g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanLeftImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'R':
-							g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanRightImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'U':
-							g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanUpImage, a.x, a.y, Color.BLACK, null);
+								break;
 							case 'D':
-							g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
-							break;
+								g.drawImage(pacmanDownImage, a.x, a.y, Color.BLACK, null);
+								break;
 						}
 					}
 				}
 				// Por defecto se pintan fantasmas
 				else {
-					if(ghost1.frameCount<50) {
+					if(ghost1.frameCount<500) {
 						g.drawImage(ghost10, a.x, a.y, Color.BLACK, null);
 						// ghost1.frameCount++;
 					}
@@ -804,7 +812,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			for (int i=0; i<l.size(); i++) {
 				Player a=(Player)l.get(i);
 				repaint(a.x-20, a.y-20, 80, 80);
-				}
+			}
 		}
 	}
 	public void borrandoAmigos(List<Player> l, Graphics g) {

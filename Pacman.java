@@ -180,18 +180,19 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	/* We either have a new game or the user has died, either way we have to reset 	the board */
 		if (b.stopped||New)
 		{
-		/*Temporarily stop advancing frames */
+			/*Temporarily stop advancing frames */
 			frameTimer.stop();
-		/* If user is dying ... */
+			/* If user is dying ... */
 			while (b.dying>0)
 			{
 			/* Play dying animation. */
 				stepFrame(false);
 			}
-		/* Move all game elements back to starting positions and orientations */
+			/* Move all game elements back to starting positions and orientations */
 			b.player.currDirection='L';
 			b.player.direction='L';
 			b.player.desiredDirection='L';
+			/* Posicionamiento del nuevo jugador */
 			b.player.x=200; // La x no cambia
 			// Impide la colision al crearse con el fantasma
 			if(b.PlayerFantasma()!=null&&b.PlayerFantasma().y==300) {
