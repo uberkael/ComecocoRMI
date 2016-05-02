@@ -105,6 +105,8 @@ public class Board extends JPanel implements java.io.Serializable {
 	/* This is the main function that draws one entire frame of the game */
 	public void paint(Graphics g)
 	{
+		// Baja los datos del servidor
+		rmiUpdate();
 	/* If we're playing the dying animation, don't update the entire screen.
 	Just kill the pacman*/
 		if (dying>0)
@@ -217,7 +219,7 @@ public class Board extends JPanel implements java.io.Serializable {
 			ghost2=new Ghost(200, 180);
 			ghost3=new Ghost(220, 180);
 			ghost4=new Ghost(220, 180);
-			rmiUpdate();
+			// rmiUpdate();
 			player.currScore=0;
 			drawBoard(g);
 			drawPellets(g);
@@ -571,6 +573,11 @@ public class Board extends JPanel implements java.io.Serializable {
 		}
 		return null;
 	}
+	/* Borra el jugador del servidor al salir */
+	public void borraPlayer() {
+		try	{srv.borraPlayer(nombre);} catch (Exception e) {
+		}
+	}
 	/* Funcion para actualizar los datos del servidor y del player */
 	public void rmiUpdate() {
 		// Actualiza los datos del player en servidor
@@ -580,7 +587,8 @@ public class Board extends JPanel implements java.io.Serializable {
 			}
 			catch (Exception er) {
 				System.err.println("Excepcion enviando datos");
-				er.printStackTrace();
+				// er.printStackTrace();
+				muerete();
 			}
 		}
 		// Actualiza los datos del mapa en servidor
@@ -630,7 +638,8 @@ public class Board extends JPanel implements java.io.Serializable {
 				}
 				catch (Exception e) {
 					System.err.println("Excepcion en Amigos: ");
-					e.printStackTrace();
+					// e.printStackTrace();
+					muerete();
 				}
 
 			}
@@ -816,5 +825,9 @@ public class Board extends JPanel implements java.io.Serializable {
 	}
 	public void reset() {
 		numLives=2;
+	}
+	// Si se intenta duplicar el cliente cierra el anterior programa
+	public void muerete() {
+		System.exit(0);
 	}
 }

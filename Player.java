@@ -32,6 +32,10 @@ class Player extends Mover implements java.io.Serializable
 	int currScore;
 	/* Es un comecoco o fantasma */
 	boolean comecoco=true;
+	/* Dying is used to count frames in the dying animation.  If it's non-zero,
+	pacman is in the process of dying */
+	// Movido al player para matarlo por red
+	int dying=0;
 	/* Constructor places pacman in initial location and orientation */
 	public Player(int x, int y, String nombre)
 	{
@@ -282,15 +286,9 @@ class Player extends Mover implements java.io.Serializable
 		return this.nombre;
 	}
 	/* Posicion x actual del jugador */
-	public int getX()
-	{
-		return this.x;
-	}
+	public int getX() {return this.x;}
 	/* Posicion y actual del jugador */
-	public int getY()
-	{
-		return this.y;
-	}
+	public int getY() {return this.y;}
 	public int getScore() {
 		return this.currScore;
 	}

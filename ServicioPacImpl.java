@@ -19,18 +19,34 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 		for (int i=0; i<l.size(); i++) {
 			Player p=(Player)l.get(i);
 			if (p.getNombre().indexOf(nombre)!=-1) {
+				// Provoca que si esta bloqueado en la lista se borre
+				p.setComecoco(true); // Por si acaso, a veces se queda como fantasma
+				l.remove(p);
 				throw new RemoteException("El nombre ya existe.");
 			}
 		}
-		// Impide la colision al crearse con el fantasma
+		// Impide la colision al crearse con el fantasma en Board reset()
 		int x=200;
 		int y=300;
+		// Si es el unico conectado imprime la cabecera
+		if(l.size()==0) {System.out.println("\nLista de Clientes:");}
 		// Si no lo agrega a la lista y lo devuelve al cliente
 		Player c=new Player(x, y, nombre);
 		l.add(c);
-		System.out.println("Lista de Clientes:");
 		try	{imprimeListaAmigos();} catch (Exception e) {}
 		// System.out.println("Player agregado: "+c.getNombre());
+	}
+	/* Borra un jugador a la lista y la devuelve */
+	public void borraPlayer(String nombre) throws RemoteException {
+		// Comprueba si el jugador ya existe
+		for (int i=0; i<l.size(); i++) {
+			Player p=(Player)l.get(i);
+			if (p.getNombre().indexOf(nombre)!=-1) {
+				// Provoca que si esta bloqueado en la lista se borre
+				p.setComecoco(true); // Por si acaso, a veces se queda como fantasma
+				l.remove(p);
+			}
+		}
 	}
 	/* Devuelve la posicion del jugador*/
 	public String posicionPlayer(Player jugador) throws RemoteException {
@@ -46,7 +62,9 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 			// El servidor actualiza quien es el Comecoco con mas putuacion
 			if (p.getNombre().indexOf(jugador.getNombre())!=-1) {
 				encontrado=true; // Encontrado el player
-				this.l.set(i, jugador); // Se sobreescribe el jugador de la lista
+				// this.l.set(i, jugador); // Se sobreescribe el jugador de la lista
+				// Se sobreescribe la informacion, no el objeto
+				updatePlayerData(jugador, p);
 			}
 		}
 		if (encontrado) {
@@ -59,6 +77,27 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 			throw new Exception(jugador.getNombre()+" no encontrado.");
 		}
 	}
+	// Se sobreescribe la informacion, no el objeto (Muchos campos seran innecesarios)
+	public void updatePlayerData(Player juga, Player pa) throws Exception  {
+		pa.direction=juga.direction;
+		pa.currDirection=juga.currDirection;
+		pa.desiredDirection=juga.desiredDirection;
+		pa.pelletsEaten=juga.pelletsEaten;
+		pa.lastX=juga.lastX;
+		pa.lastY=juga.lastY;
+		pa.x=juga.x;
+		pa.y=juga.y;
+		pa.pelletX=juga.pelletX;
+		pa.pelletY=juga.pelletY;
+		pa.lastPelletX=juga.lastPelletX;
+		pa.lastPelletY=juga.lastPelletY;
+		pa.teleport=juga.teleport;
+		pa.stopped=juga.stopped;
+		pa.nombre=juga.nombre;
+		pa.currScore=juga.currScore;
+		pa.comecoco=juga.comecoco;
+	}
+	// Se sobreescribe la informacion, no el objeto
 	public void updateTablero(Tablero a) throws Exception {
 		// Actualiza sin sustituir el objeto
 		tB.updateState(a.state);
@@ -83,6 +122,8 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 	}
 	/* Promociona al que tenga mayor de todo el servidor puntuacion a Fantasma */
 	public void promocionaComecocos() throws Exception {
+		// Si hay menos de dos sale
+		if(l.size()<2) {return;}
 		// Haya el maximo
 		int max=tB.getHighScore();
 		int aux;
@@ -101,6 +142,7 @@ class ServicioPacImpl extends UnicastRemoteObject implements ServicioPac {
 			if (i==unico&&max>950&&max%1000==0) {
 				// Encontrado el player con mayor puntuacion
 				p.setComecoco(false);
+				// System.out.println(p.getNombre());
 			}
 			else {
 				p.setComecoco(true);

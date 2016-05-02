@@ -82,14 +82,14 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 	public void stepFrame(boolean New)
 	{
 		// Envia la posicion actual al servidor, que la imprimirá
-		try	{
-			// Actualiza los datos del cliente
-			b.rmiUpdate();
-		}
-		catch (Exception er) {
-			System.err.println("Excepcion en la posicion o player");
-			er.printStackTrace();
-		}
+		// try	{
+		// 	// Actualiza los datos del cliente
+		b.repaint();
+		// }
+		// catch (Exception er) {
+		// 	System.err.println("Excepcion en la posicion o player");
+		// 	er.printStackTrace();
+		// }
 		/* If we aren't on a special screen than the timers can be set to-1 to 	disable them */
 		if (!b.titleScreen&&!b.winScreen&&!b.overScreen)
 		{
@@ -292,6 +292,7 @@ public class Pacman extends JApplet implements MouseListener, KeyListener
 			else if (350<=x&&x<=420)
 			{
 				/* Exit has been clicked */
+				b.borraPlayer();
 				System.exit(0);
 			}
 		}
